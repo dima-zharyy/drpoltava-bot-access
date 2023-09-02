@@ -1,0 +1,25 @@
+{
+  "name": "drpoltava-bot-access",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node ./index.js",
+    "dev": "cross-env NODE_ENV=development node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dima-zharyy/drpoltava-bot-access.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dima-zharyy/drpoltava-bot-access/issues"
+  },
+  "homepage": "https://github.com/dima-zharyy/drpoltava-bot-access#readme",
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
+    "node-telegram-bot-api": "^0.61.0"
+  }
+}
