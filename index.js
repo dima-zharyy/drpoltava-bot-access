@@ -28,9 +28,16 @@ bot.on('message', msg => {
       const useMention = !!newMember.username;
 
       if (hasBannedNamePart(newMember)) {
-        bot.unbanChatMember(chatId, newMemberUserId).catch(error => {
-          console.error('Banning user by name - unexpected error: ', error);
-        });
+        bot
+          .banChatMember(chatId, newMemberUserId)
+          .then(() => {
+            if (msg.from.id === newMemberUserId) {
+              return bot.deleteMessage(chatId, msg.message_id);
+            }
+          })
+          .catch(error => {
+            console.error('Banning user by name - unexpected error: ', error);
+          });
 
         return;
       }
@@ -53,6 +60,17 @@ bot.on('message', msg => {
 
       newUsersMap.set(newMemberUserId, timer);
     });
+  } else if (msg.left_chat_member) {
+    const leftUser = msg.left_chat_member;
+
+    // Проверяем:
+    // - Инициатором выхода (msg.from.id) был наш бот?
+    // - У удаленного юзера спам-имя?
+    if ([6326152970, 7476052137].includes(msg.from.id) && hasBannedNamePart(leftUser)) {
+      bot.deleteMessage(chatId, msg.message_id).catch(error => {
+        console.error('Ошибка удаления сообщения о выходе спамера: ', error);
+      });
+    }
   } else if (msg.text && newUsersMap.has(userId)) {
     clearTimeout(newUsersMap.get(userId));
     newUsersMap.delete(userId);
