@@ -6,6 +6,7 @@ const getWelcomeMessage = (userName, useMention) =>
   `👋 Доброго дня, ${useMention ? '@' : ''}${userName}.\nНапишіть з якої ви команди або будете видалені через 2 хвилини.`;
 const TIMER_VALUE = 120000;
 const BANNED_NAME_PARTS = ['rabota', 'robota', 'работа', 'робота'];
+const ONE_TIME_UNBAN_USER_ID = 6691526028;
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
@@ -21,6 +22,10 @@ bot.on('message', msg => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
 
+  bot.unbanChatMember(chatId, 6691526028).catch(error => {
+    console.error('Banning user by name - unexpected error: ', error);
+  });
+
   if (msg.new_chat_members) {
     msg.new_chat_members.forEach(newMember => {
       const newMemberUserName = newMember.username ? newMember.username : `${newMember.first_name || ''} ${newMember.last_name || ''}`;
@@ -28,7 +33,7 @@ bot.on('message', msg => {
       const useMention = !!newMember.username;
 
       if (hasBannedNamePart(newMember)) {
-        bot.banChatMember(chatId, newMemberUserId).catch(error => {
+        bot.unbanChatMember(chatId, newMemberUserId).catch(error => {
           console.error('Banning user by name - unexpected error: ', error);
         });
 
