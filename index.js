@@ -5,16 +5,45 @@ const { BOT_TOKEN } = process.env;
 const getWelcomeMessage = (userName, useMention) =>
   `👋 Доброго дня, ${useMention ? '@' : ''}${userName}.\nНапишіть з якої ви команди або будете видалені через 2 хвилини.`;
 const TIMER_VALUE = 120000;
-const BANNED_NAME_PARTS = ['rabota', 'robota', 'работа', 'робота'];
+const BANNED_NAME_PARTS = ['rabota', 'robota', 'pabota', 'pobota'];
+const CONFUSABLES = {
+  6: 'b',
+  а: 'a',
+  б: 'b',
+  в: 'b',
+  е: 'e',
+  ё: 'e',
+  є: 'e',
+  і: 'i',
+  ї: 'i',
+  к: 'k',
+  м: 'm',
+  н: 'h',
+  о: 'o',
+  р: 'p',
+  с: 'c',
+  т: 't',
+  у: 'y',
+  х: 'x',
+};
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 const newUsersMap = new Map();
 
-const hasBannedNamePart = user => {
-  const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+const normalizeName = name =>
+  name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[6а-яёіїє]/g, char => CONFUSABLES[char] || char)
+    .replace(/[^a-z0-9]/g, '');
 
-  return BANNED_NAME_PARTS.some(namePart => fullName.includes(namePart));
+const hasBannedNamePart = user => {
+  const fullName = `${user.first_name || ''} ${user.last_name || ''}`;
+  const normalizedFullName = normalizeName(fullName);
+
+  return BANNED_NAME_PARTS.some(namePart => normalizedFullName.includes(namePart));
 };
 
 bot.on('message', msg => {
